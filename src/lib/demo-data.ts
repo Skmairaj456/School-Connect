@@ -1,3 +1,5 @@
+import type { Guardian, SafetyState } from "@/lib/safety";
+
 export type DemoRole = "platform_admin" | "administrator" | "parent" | "teacher" | "driver" | "student";
 export type AttendanceStatus = "Present" | "Absent" | "Late" | "Excused";
 
@@ -66,6 +68,7 @@ export interface DemoState {
   exams: ExamItem[];
   marks: MarkItem[];
   trip: { id?: string; routeId?: string; active: boolean; position: [number, number]; updatedAt: string | null; simulated?: boolean };
+  safety: SafetyState;
 }
 
 // Demo dates are relative to today so the sample school day never looks stale.
@@ -78,6 +81,17 @@ function daysFromNow(days: number, hours = 9, minutes = 0) {
 
 function plannedOn(days: number) {
   return `Planned ${new Date(daysFromNow(days)).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+}
+
+function rider(studentId: string, name: string, stop: string, boarded: [number, number] | null, arrived: [number, number] | null, guardians: Guardian[]) {
+  return {
+    studentId, name, stop, guardians,
+    initials: name.split(" ").map((part) => part[0]).join(""),
+    boardedAt: boarded ? daysFromNow(0, ...boarded) : null,
+    arrivedAt: arrived ? daysFromNow(0, ...arrived) : null,
+    handedOverAt: null,
+    handedOverTo: null,
+  };
 }
 
 export const demoSeed: DemoState = {
@@ -129,4 +143,22 @@ export const demoSeed: DemoState = {
     { id: "mark-02", examId: "exam-02", studentName: "Meera Mehta", score: 34, maxMarks: 40, feedback: "Excellent observation notes" },
   ],
   trip: { active: true, position: [17.4239, 78.4738], updatedAt: daysFromNow(0, 8, 32), simulated: true },
+  // Morning run of Route 02. Kabir got off at school but is marked absent; Ishaan was never scanned off the bus.
+  safety: {
+    riders: [
+      rider("st-01", "Meera Mehta", "Green Park", [7, 41], [8, 6], [{ name: "Ananya Mehta", relationship: "Mother", phone: "+91 90000 00001" }, { name: "Rohit Mehta", relationship: "Father", phone: "+91 90000 00002" }]),
+      rider("st-03", "Diya Reddy", "Lake View Colony", [7, 48], [8, 6], [{ name: "Lakshmi Reddy", relationship: "Mother", phone: "+91 90000 00003" }]),
+      rider("st-04", "Kabir Nair", "Lake View Colony", [7, 49], [8, 6], [{ name: "Priya Nair", relationship: "Mother", phone: "+91 90000 00004" }]),
+      rider("st-05", "Anaya Gupta", "Srinagar Colony", [7, 55], [8, 6], [{ name: "Vikram Gupta", relationship: "Father", phone: "+91 90000 00005" }]),
+      rider("st-06", "Ishaan Rao", "Banjara Hills", [8, 1], null, [{ name: "Kavya Rao", relationship: "Mother", phone: "+91 90000 00006" }]),
+    ],
+    sweepConfirmedAt: null,
+    resolutions: {},
+    blockedHandovers: {},
+    log: [
+      { id: "log-01", at: daysFromNow(0, 7, 41), text: "Meera Mehta boarded Bus 12 at Green Park", tone: "ok" },
+      { id: "log-02", at: daysFromNow(0, 8, 6), text: "4 students scanned off at the school gate", tone: "ok" },
+      { id: "log-03", at: daysFromNow(0, 8, 31), text: "Class 5A register: Kabir Nair marked absent", tone: "alert" },
+    ],
+  },
 };

@@ -27,6 +27,18 @@ npm start
 
 Open http://localhost:3000. If Supabase is configured, the sign-in screen offers **Explore the interactive demo**, which opens the browser demo without contacting Supabase (use **Exit demo** in the banner to return). Demo dates are relative to today, and **Reset data** restores the sample school. The bus map needs internet access for OpenStreetMap tiles.
 
+## Safety Chain
+
+School apps usually treat bus GPS and class attendance as separate modules. Safety Chain joins them per child, across four checkpoints: **bus pickup → school gate → classroom → verified home handover**. A break between checkpoints raises an alert straight away:
+
+- **Never scanned off the bus.** A child boarded but has no gate scan, and the driver cannot confirm the empty-bus check or end the trip until every child is scanned off. This targets children being left on parked buses.
+- **Reached school but marked absent.** The bus says the child arrived and the register says Absent, so the office is told to locate the child.
+- **Handover blocked.** Each child has a four-digit handover code that changes daily. Parents share it only with the adult collecting the child. A wrong code keeps the child with the attendant and alerts the school.
+
+The logic lives in `src/lib/safety.ts` with unit tests in `src/lib/safety.test.ts`. It runs on sample riders today; the existing `transport_events` and `pickup_contacts` tables are where live boarding scans and guardians will be stored.
+
+**Two-minute demo:** Overview shows the red safety banner → open Safety Chain (2 alerts, chain board) → switch to Driver: "Confirm bus is empty" is locked → Scan off Ishaan, tick the three checks, confirm → enter 0000 for Meera's handover to show it is blocked → switch to Parent to see Meera's journey and today's code → back as Driver, release Meera with the right code → switch to Administrator, click "Found in class" on Kabir: every child accounted for.
+
 ## Supabase local setup and seed
 
 1. Start the local stack: `supabase start`.

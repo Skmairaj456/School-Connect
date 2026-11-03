@@ -57,10 +57,10 @@ await write("subscription_plans", [
   { id: "30000000-0000-4000-8000-000000000003", name: "Plus", monthly_amount_inr: 8999, student_limit: 1500, features: { transport: true, syllabus: true, reports: true, analytics: true, groups: true } },
   { id: "30000000-0000-4000-8000-000000000004", name: "School group", monthly_amount_inr: 0, student_limit: null, features: { custom_pricing: true } },
 ], "id");
-await write("school_subscriptions", [{ school_id: schoolId, plan_id: starterPlanId, status: "active", starts_on: "2026-06-01", renews_on: "2026-11-01" }], "school_id");
+await write("school_subscriptions", [{ school_id: schoolId, plan_id: starterPlanId, status: "active", starts_on: "2026-06-01", renews_on: "2026-12-01" }], "school_id");
 await write("profiles", profiles);
 await write("user_roles", accounts.map((account) => ({ user_id: profileByEmail.get(account.email), school_id: schoolId, role: account.role })), "user_id,school_id,role");
-await write("academic_years", [{ id: yearId, school_id: schoolId, name: "2025–26", starts_on: "2025-06-01", ends_on: "2026-05-31", is_current: true }]);
+await write("academic_years", [{ id: yearId, school_id: schoolId, name: "2026–27", starts_on: "2026-06-01", ends_on: "2027-05-31", is_current: true }]);
 await write("classes", [{ id: class5Id, school_id: schoolId, academic_year_id: yearId, name: "Class 5" }, { id: class6Id, school_id: schoolId, academic_year_id: yearId, name: "Class 6" }]);
 await write("sections", [{ id: section5aId, school_id: schoolId, class_id: class5Id, name: "A" }, { id: section5bId, school_id: schoolId, class_id: class5Id, name: "B" }, { id: section6aId, school_id: schoolId, class_id: class6Id, name: "A" }]);
 await write("subjects", [{ id: mathId, school_id: schoolId, name: "Mathematics" }, { id: scienceId, school_id: schoolId, name: "Science" }, { id: englishId, school_id: schoolId, name: "English" }]);
